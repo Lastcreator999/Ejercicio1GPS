@@ -1,0 +1,9 @@
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo">
+  <ActionBar title="Ejercicio 1: GPS simple" />
+  <StackLayout class="p-20">
+    <Label text="{{ lat }}" class="h2" />
+    <Label text="{{ lon }}" class="h2" />
+    <Label text="{{ mensaje }}" textWrap="true" class="m-y-10" />
+    <Button text="Obtener mi ubicación" tap="{{ obtener }}" />
+  </StackLayout>
+</Page>
