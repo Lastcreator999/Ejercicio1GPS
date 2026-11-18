@@ -20,35 +20,67 @@ Copia el bloque que corresponde a tu sistema y pégalo en la terminal. Las líne
 
 1. Abre **Android Studio** una vez para que termine de instalar el SDK. En *More Actions > Virtual Device Manager* crea un emulador (por ejemplo *Pixel*) si no hay ninguno.
 2. Abre **Xcode** una vez, acepta la licencia y en *Settings > Components* descarga el simulador de iOS si no aparece. En *Settings > Locations*, en *Command Line Tools*, elige la versión de Xcode instalada (si la lista está vacía, iOS no compila).
-3. Revisa en la terminal que estén Node.js, CocoaPods y Python:
+3. Revisa que esté Node.js. En las Macs del salón no hace falta Homebrew: Java 21 ya viene instalado.
 
 ```bash
 # macOS (Terminal)
 node -v              # debe mostrar v20 o mayor
-pod --version        # CocoaPods, lo usa iOS al compilar
-python3 -c "import six" && echo "six OK"
 ```
 
-4. Si `pod` no existe o falta `six`, instálalos como indica el manual oficial de NativeScript: Ruby 3.3 o mayor con Homebrew, y CocoaPods y `xcodeproj` como gemas de ese Ruby (no con `brew install cocoapods`). Esto se hace una sola vez; las líneas que se agregan a `~/.zprofile` dejan `pod` disponible en todas las terminales nuevas.
+4. Instala la CLI de NativeScript y revisa la computadora con `ns doctor`:
 
 ```bash
 # macOS (Terminal)
-brew install ruby python
-echo 'export PATH="$(brew --prefix ruby)/bin:$PATH"' >> ~/.zprofile
-echo 'export PATH="$(gem environment gemdir)/bin:$PATH"' >> ~/.zprofile
-source ~/.zprofile
-gem install cocoapods xcodeproj
-python3 -m pip install --upgrade pip
-python3 -m pip install six
+npm install -g nativescript
+ns --version
+ns doctor
+```
 
-# Comprueba
-which pod            # debe apuntar a una carpeta de Homebrew, no a /usr/bin
+5. Para iOS, instala las herramientas de línea de comandos de Xcode y CocoaPods. `sudo` pide la contraseña de administrador.
+
+```bash
+# macOS (Terminal)
+xcode-select --install
+sudo gem install cocoapods
 pod --version
 ```
 
-Si `pip install` responde *externally-managed-environment*, agrega `--user --break-system-packages` al final de los dos comandos de `pip`.
+6. Vuelve a ejecutar `ns doctor`. No debe marcar errores.
 
-5. Para abrir VS Code desde la terminal con `code .`: en VS Code presiona Cmd + Shift + P, escribe `Shell Command: Install 'code' command in PATH` y Enter.
+7. Si `ns doctor` muestra un aviso sobre `ANDROID_HOME` o `adb`, revisa primero qué Java tienes:
+
+```bash
+# macOS (Terminal)
+java -version        # debe mostrar 21.x
+```
+
+Luego abre el archivo de configuración de la terminal:
+
+```bash
+# macOS (Terminal)
+nano ~/.zshrc
+```
+
+Agrega al final estas líneas:
+
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+export ANDROID_HOME=$HOME/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
+```
+
+`$HOME` es tu carpeta de usuario; en las Macs del salón es `/Users/Alumnos`. Guarda con Ctrl + O, Enter, y sal con Ctrl + X. Después carga los cambios y revisa Android:
+
+```bash
+# macOS (Terminal)
+source ~/.zshrc
+ns doctor android
+```
+
+Como quedan en `~/.zshrc`, estas variables se cargan en cada terminal nueva y en la Mac puedes saltarte la Parte 2.
+
+8. Para abrir VS Code desde la terminal con `code .`: en VS Code presiona Cmd + Shift + P, escribe `Shell Command: Install 'code' command in PATH` y Enter.
 
 ### Windows (en casa, solo Android)
 
@@ -68,9 +100,11 @@ En Android Studio, en *Settings > Languages & Frameworks > Android SDK*, revisa 
 
 ## Parte 2. Avisarle a la terminal dónde están Android y Java
 
-NativeScript necesita saber dónde está el SDK de Android y el Java que trae Android Studio. Estas variables duran mientras la terminal esté abierta; si la cierras, vuelve a ejecutar el bloque. El manual oficial las guarda de forma permanente (en `~/.zprofile` en Mac o en las variables de entorno del sistema en Windows); aquí se ponen solo en la terminal para no tocar la configuración de las Macs del salón.
+Si en la Mac ya agregaste las variables a `~/.zshrc` (Parte 1, paso 7), sáltate esta parte.
 
-NativeScript recomienda Java 21: con versiones más nuevas el Gradle que usa puede fallar. Las versiones recientes de Android Studio traen Java 21, pero revisa lo que muestra `java -version`. Si sale otra versión, instala JDK 21 (`brew install --cask temurin@21` en Mac, `winget install EclipseAdoptium.Temurin.21.JDK` en Windows) y usa esa carpeta en `JAVA_HOME`.
+NativeScript necesita saber dónde está el SDK de Android y el Java que trae Android Studio. Estas variables duran mientras la terminal esté abierta; si la cierras, vuelve a ejecutar el bloque.
+
+NativeScript recomienda Java 21: con versiones más nuevas el Gradle que usa puede fallar. Las versiones recientes de Android Studio traen Java 21, pero revisa lo que muestra `java -version`. Si en Windows sale otra versión, instala JDK 21 con `winget install EclipseAdoptium.Temurin.21.JDK` y usa esa carpeta en `JAVA_HOME`.
 
 ```bash
 # macOS (Terminal)
@@ -98,7 +132,7 @@ adb version
 
 ### Paso 1. Crear la carpeta de trabajo y el proyecto
 
-Usamos `npx nativescript`, que descarga la CLI de NativeScript sin instalarla de forma global (en las Macs del salón no hace falta permiso de administrador). La opción `--ts` crea el proyecto con TypeScript. El manual oficial instala la CLI con `npm install -g nativescript` y la llama `ns`; en esta guía `npx nativescript` hace lo mismo, así que donde el manual diga `ns doctor` aquí se escribe `npx nativescript doctor`.
+La guía usa `npx nativescript`, que funciona aunque la CLI no esté instalada de forma global. La opción `--ts` crea el proyecto con TypeScript. Si instalaste la CLI con `npm install -g nativescript` (Parte 1 en Mac), puedes escribir `ns` en lugar de `npx nativescript` en todos los comandos: por ejemplo `ns create Ejercicio1GPS --ts` y, en la Parte 4, `ns run android`.
 
 ```bash
 # macOS (Terminal)
